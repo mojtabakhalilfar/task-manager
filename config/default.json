@@ -1,0 +1,6 @@
+{
+    "name":"Task Manager",
+    "db":{
+        "address":"mongodb://localhost:27017/TaskManager"
+    }
+}
