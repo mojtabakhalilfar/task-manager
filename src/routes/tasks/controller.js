@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const config = require("config");
 
 module.exports = new (class extends Controller {
-  async register(req, res) {
+  async getTasks(req, res) {
     if (req.body == undefined) return console.log(undefined);
     console.log(req.body);
     let user = await this.User.findOne({ email: req.body.email });
