@@ -35,10 +35,10 @@ module.exports = new (class extends Controller {
         message: "invaild email or password1",
       });
     }
-    const isvaild = await bcrypt.compare( req.body.password , user.password);
+    const isvaild = await bcrypt.compare(req.body.password, user.password);
     if (!isvaild) {
-      console.log(user.password)
-      console.log(req.body.password)
+      console.log(user.password);
+      console.log(req.body.password);
       return this.response({
         res,
         code: 400,

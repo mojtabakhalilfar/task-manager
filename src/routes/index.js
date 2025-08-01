@@ -3,9 +3,10 @@ const router = express.Router()
 const routerAuth = require('./auth')
 const routerTask = require('./tasks')
 const routerUser = require('./user')
+const {isLoggined} =require('../middleware/auth')
 
 router.use('/auth' , routerAuth)
-router.use('/tasks' , routerTask)
+router.use('/tasks' ,isLoggined, routerTask)
 router.use('/users' , routerUser)
 
 router.get('/',(req , res)=>{

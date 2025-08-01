@@ -6,46 +6,58 @@ const config = require("config");
 
 module.exports = new (class extends Controller {
   async getTasks(req, res) {
+    console.log(1);
     if (req.body == undefined) return console.log(undefined);
-    console.log(req.body);
-    let user = await this.User.findOne({ email: req.body.email });
-    if (user) {
-      return this.response({
-        res,
-        message: "this user alredy registred",
-        code: 400,
-      });
+    const tasks = await this.Task.find({ user: req.user._id });
+    if (tasks.length === 0) {
+      return this.response({ res, message: "there is no task" });
     }
-    user = new this.User(_.pick(req.body, ["name", "password", "email"]));
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
-    await user.save();
+    this.response({ res, data: tasks, message: "successfully" });
+  }
+  async postTasks(req, res) {
+    if (req.body == undefined) return console.log(undefined);
+    let task = new this.Task({
+      ..._.pick(req.body, ["title", "description", "dueDate"]),
+      user: req.user._id,
+    });
+    await task.save();
     this.response({
-      data: user,
-      message: "the user successfully registerd",
       res,
+      message: "Task created successfully",
+      data: task,
     });
   }
-  async login(req, res) {
-    let user = await this.User.findOne({ email: req.body.email });
-    if (!user) {
-      return this.response({
-        res,
-        code: 400,
-        message: "invaild email or password1",
-      });
+
+  async putTasks(req, res) {
+    if (req.body == undefined) return console.log(undefined);
+    let task = await this.Task.findById(req.params.id);
+    if(!task){
+      return this.response({res , message:"not found task" ,code:404})
     }
-    const isvaild = await bcrypt.compare( req.body.password , user.password);
-    if (!isvaild) {
-      console.log(user.password)
-      console.log(req.body.password)
-      return this.response({
-        res,
-        code: 400,
-        message: "invail email or password2",
-      });
+    task.title = req.body.title;
+    task.description = req.body.description;
+    task.dueDate = req.body.dueDate;
+    task.status = req.body.status;
+    await task.save();
+    console.log(task);
+    this.response({
+      res,
+      message: "Task edited successfully",
+      data: task,
+    });
+  }
+
+    async deleteTasks(req, res) {
+    if (req.body == undefined) return console.log(undefined);
+    let task = await this.Task.findOne({_id:req.params.id , user: req.user._id });
+    if(!task){
+      return this.response({res , message:"not found task" ,code:404})
     }
-    const token = jwt.sign({ _id: user.id }, config.get("jwt-key"));
-    this.response({ res, message: "successful loged in", data: { token } });
+    await task.deleteOne()
+    this.response({
+      res,
+      message: "Task deleted successfully",
+      data: task,
+    });
   }
 })();
