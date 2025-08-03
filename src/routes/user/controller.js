@@ -1,51 +1,47 @@
 const Controller = require("../controller");
-const jwt = require("jsonwebtoken");
-const _ = require("lodash");
-const bcrypt = require("bcrypt");
-const config = require("config");
 
 module.exports = new (class extends Controller {
-  async register(req, res) {
-    if (req.body == undefined) return console.log(undefined);
-    console.log(req.body);
-    let user = await this.User.findOne({ email: req.body.email });
-    if (user) {
-      return this.response({
-        res,
-        message: "this user alredy registred",
-        code: 400,
-      });
+  async getUser(req, res) {
+    try {
+      if (!req.user || !req.user._id)
+        return this.response({ res, code: 401, message: "Unauthorized" });
+      let user = await this.User.findById(req.user._id);
+      if (!user)
+        return this.response({ res, code: 404, message: "not found data" });
+      user = user.toObject();
+      delete user.password;
+      this.response({ res, data: user, message: "successfully" });
+    } catch (error) {
+      this.response({ res, code: 500, message: "server error" });
     }
-    user = new this.User(_.pick(req.body, ["name", "password", "email"]));
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
-    await user.save();
-    this.response({
-      data: user,
-      message: "the user successfully registerd",
-      res,
-    });
   }
-  async login(req, res) {
-    let user = await this.User.findOne({ email: req.body.email });
-    if (!user) {
-      return this.response({
-        res,
-        code: 400,
-        message: "invaild email or password1",
-      });
+  async editeUser(req, res) {
+    try {
+      if (!req.user || !req.user._id)
+        return this.response({ res, code: 401, message: "Unauthorized" });
+      let user = await this.User.findById(req.user._id);
+      if (!user)
+        return this.response({ res, code: 404, message: "not found data" });
+      if (req.body.email) user.email = req.body.email;
+      if (req.body.name) user.name = req.body.name;
+      await user.save();
+      this.response({ res, data: user, message: "successfully" });
+    } catch (error) {
+      this.response({ res, code: 500, message: "server error" });
     }
-    const isvaild = await bcrypt.compare( req.body.password , user.password);
-    if (!isvaild) {
-      console.log(user.password)
-      console.log(req.body.password)
-      return this.response({
-        res,
-        code: 400,
-        message: "invail email or password2",
-      });
+  }
+  async deleteUser(req, res) {
+    try {
+      if (!req.user || !req.user._id)
+        return this.response({ res, code: 401, message: "Unauthorized" });
+      let user = await this.User.findById(req.user._id);
+      if (!user)
+        return this.response({ res, code: 404, message: "not found data" });
+      await this.Task.deleteMany({user:req.user._id})
+      await user.deleteOne();
+      this.response({res , message:"User and tasks deleted successfully"})
+    } catch (error) {
+      this.response({ res, code: 500, message: "server error" });
     }
-    const token = jwt.sign({ _id: user.id }, config.get("jwt-key"));
-    this.response({ res, message: "successful loged in", data: { token } });
   }
 })();
