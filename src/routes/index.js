@@ -8,7 +8,8 @@ const {isLoggined , isAdmin} =require('../middleware/auth')
 
 router.use('/auth' , routerAuth)
 router.use('/tasks' ,isLoggined, routerTask)
-router.use('/users', isAdmin, routerAdmiin)
+router.use('/users',isLoggined , routerUser)
+router.use('/admin',isLoggined , isAdmin, routerAdmiin)
 
 router.get('/',(req , res)=>{
     res.json({data:"hiii"})
