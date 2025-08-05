@@ -1,10 +1,13 @@
 require('express-async-errors')
+const helmet  = require('helmet')
 const express  = require('express')
 const app = express()
 const router = require('./src/routes')
 const errorHandler = require('./src/middleware/errorHandler')
 
+
 app.use(express.json())
+app.use(helmet())
 
 app.use("/api" , router)
 require('./startup/db')()
