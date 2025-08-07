@@ -5,14 +5,16 @@ module.exports = new (class {
   postTasksValidation() {
     return [
       check("title").not().isEmpty().withMessage("title can not empty"),
-      check("email").isEmail().withMessage("name can not empty"),
+      check("description"),
+      check("dueDate").isDate()
     ];
   }
-  getTasksValidation() {
+  putTasksValidation() {
     return [
-      check("name").not().isEmpty().withMessage("name can not empty"),
-      check("password").not().isEmpty().withMessage("name can not empty"),
-      check("email").isEmail().withMessage("name can not empty"),
+      check("title").not().isEmpty().withMessage("title can not empty"),
+      check("description"),
+      check("dueDate").isDate(),
+      check("status")
     ];
   }
 })();

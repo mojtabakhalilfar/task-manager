@@ -13,7 +13,12 @@ router.use('/users',isLoggined , routerUser)
 router.use('/admin',isLoggined , isAdmin, routerAdmiin)
 
 router.get('/',(req , res)=>{
-    res.json({data:"hiii"})
+    res.json([
+        "http://localhost:3000/api/auth" ,
+        "http://localhost:3000/api/tasks" ,
+        "http://localhost:3000/api/users" ,
+        "http://localhost:3000/api/admin" ,
+    ])
 })
 
 module.exports = router

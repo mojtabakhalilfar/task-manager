@@ -4,8 +4,9 @@ const express  = require('express')
 const app = express()
 const router = require('./src/routes')
 const errorHandler = require('./src/middleware/errorHandler')
+const { swaggerUi, swaggerSpec } = require("./startup/swagger");
 
-
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json())
 app.use(helmet())
 
